@@ -1,0 +1,27 @@
+# Binaries
+*.out
+my_nm
+my_objdump
+unit_tests
+asan
+prof
+
+# Compilation
+.build/
+*.a
+*.o
+*.d
+*.so
+result
+
+# Editors junk
+*~
+\#*#
+*.swp
+*.swo
+
+# Reports
+core.*
+*.log
+*.gcda
+*.gcno
