@@ -9,19 +9,19 @@
 NM_NAME := my_nm
 OB_NAME := my_objdump
 
-NM_TARGET = $(NM_NAME)
-OB_TARGET = $(OB_NAME)
-ifneq ($(TARGET),)
-	NM_TARGET = $(TARGET)
-	OB_TARGET = $(TARGET)
-endif
+NM_TARGET := $(NM_NAME)
+OB_TARGET := $(OB_NAME)
 ifeq ($(MAKECMDGOALS), asan)
-	NM_TARGET = asan
-	OB_TARGET = asan
+	NM_TARGET := $(MAKECMDGOALS)
+	OB_TARGET := $(MAKECMDGOALS)
+endif
+ifeq ($(MAKECMDGOALS), debug)
+	NM_TARGET := $(MAKECMDGOALS)
+	OB_TARGET := $(MAKECMDGOALS)
 endif
 
-NM_BIN = src/nm/$(NM_TARGET)
-OB_BIN = src/objdump/$(OB_TARGET)
+NM_BIN := src/nm/$(NM_TARGET)
+OB_BIN := src/objdump/$(OB_TARGET)
 
 
 .DEFAULT_GOAL := all
@@ -45,9 +45,12 @@ $(OB_BIN):
 $(OB_NAME): $(OB_BIN)
 	@ cp $< $@
 
-# ↓ asan
+# ↓ Custom binaries
 .PHONY: asan
 asan: all
+
+.PHONY: prof
+asan: prof
 
 # ↓ Cleaning
 .PHONY: clean
