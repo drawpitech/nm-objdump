@@ -9,20 +9,10 @@
 NM_NAME := my_nm
 OB_NAME := my_objdump
 
-NM_TARGET := $(NM_NAME)
-OB_TARGET := $(OB_NAME)
-ifeq ($(MAKECMDGOALS), asan)
-	NM_TARGET := $(MAKECMDGOALS)
-	OB_TARGET := $(MAKECMDGOALS)
-endif
-ifeq ($(MAKECMDGOALS), debug)
-	NM_TARGET := $(MAKECMDGOALS)
-	OB_TARGET := $(MAKECMDGOALS)
-endif
-
-NM_BIN := src/nm/$(NM_TARGET)
-OB_BIN := src/objdump/$(OB_TARGET)
-
+NM_DIR := src/nm
+NM_TARGET := my_nm
+OB_DIR := src/objdump
+OB_TARGET := my_objdump
 
 .DEFAULT_GOAL := all
 .PHONY: all
@@ -30,38 +20,39 @@ OB_BIN := src/objdump/$(OB_TARGET)
 all: $(NM_NAME) $(OB_NAME)
 
 # ↓ nm
-.PHONY: $(NM_BIN)
-$(NM_BIN):
-	@ $(MAKE) -s -C $(dir $@) $(MAKEFLAGS) $(notdir $@)
-
-$(NM_NAME): $(NM_BIN)
-	@ cp $< $@
+.PHONY: $(NM_NAME)
+$(NM_NAME):
+	@ $(MAKE) -s -C $(NM_DIR) $(MAKEFLAGS) $(NM_TARGET)
+	@ cp $(NM_DIR)/$(NM_TARGET) $@
 
 # ↓ objdump
-.PHONY: $(OB_BIN)
-$(OB_BIN):
-	@ $(MAKE) -s -C $(dir $@) $(MAKEFLAGS) $(notdir $@)
-
-$(OB_NAME): $(OB_BIN)
-	@ cp $< $@
+.PHONY: $(OB_NAME)
+$(OB_NAME): OB_TARGET ?= $@
+$(OB_NAME):
+	@ $(MAKE) -s -C $(OB_DIR) $(MAKEFLAGS) $(OB_TARGET)
+	@ cp $(OB_DIR)/$(OB_TARGET) $@
 
 # ↓ Custom binaries
 .PHONY: asan
+asan: NM_TARGET := asan
+asan: OB_TARGET := asan
 asan: all
 
 .PHONY: prof
-asan: prof
+prof: NM_TARGET := prof
+prof: OB_TARGET := prof
+prof: prof
 
 # ↓ Cleaning
 .PHONY: clean
 clean:
-	@ $(MAKE) -s -C $(dir $(NM_BIN)) $(MAKEFLAGS) clean
-	@ $(MAKE) -s -C $(dir $(OB_BIN)) $(MAKEFLAGS) clean
+	@ $(MAKE) -s -C $(NM_DIR) $(MAKEFLAGS) clean
+	@ $(MAKE) -s -C $(OB_DIR) $(MAKEFLAGS) clean
 
 .PHONY: fclean
 fclean:
-	@ $(MAKE) -s -C $(dir $(NM_BIN)) $(MAKEFLAGS) fclean
-	@ $(MAKE) -s -C $(dir $(OB_BIN)) $(MAKEFLAGS) fclean
+	@ $(MAKE) -s -C $(NM_DIR) $(MAKEFLAGS) fclean
+	@ $(MAKE) -s -C $(OB_DIR) $(MAKEFLAGS) fclean
 	@ $(RM) $(NM_NAME) $(OB_NAME)
 
 .PHONY: re
