@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2024
 ** nm/objdump
 ** File description:
-** nm
+** binary
 */
 
 #include <elf.h>
