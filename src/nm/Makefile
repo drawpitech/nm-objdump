@@ -6,4 +6,4 @@
 ##
 
 NAME := my_nm
-include ../../common.mk
+include ../common.mk

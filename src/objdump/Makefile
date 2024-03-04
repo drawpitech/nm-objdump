@@ -6,4 +6,4 @@
 ##
 
 NAME := my_objdump
-include ../../common.mk
+include ../common.mk
