@@ -20,16 +20,6 @@
 
 #include "../utils.h"
 
-static bool get_args(int argc, char **argv, binary_t *bin)
-{
-    if (argc < 2) {
-        fprintf(stderr, "usage: my_nm <filename>\n");
-        return false;
-    }
-    strcpy(bin->filename, argv[1]);
-    return true;
-}
-
 static int cmp(const symbol_t *a, const symbol_t *b)
 {
     const char *str1 = a->name;

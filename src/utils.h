@@ -9,6 +9,7 @@
 
 #include <elf.h>
 #include <linux/limits.h>
+#include <stdbool.h>
 #include <sys/stat.h>
 
 #define STRINGIFY(x) #x
@@ -39,6 +40,7 @@ typedef struct {
 } binary_t;
 
 int ret_error(const char *name, int value);
+bool get_args(int argc, char **argv, binary_t *bin);
 
 binary_t *binary_open(binary_t *bin);
 void binary_free(binary_t *bin);
