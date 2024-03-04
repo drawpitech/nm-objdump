@@ -6,3 +6,10 @@
 */
 
 #pragma once
+
+#include "elf.h"
+
+typedef struct {
+    const char *name;
+    Elf64_Sym *symbol;
+} symbol_t;
