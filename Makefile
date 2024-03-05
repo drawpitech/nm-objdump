@@ -17,7 +17,7 @@ OB_TARGET := my_objdump
 .DEFAULT_GOAL := all
 .PHONY: all
 .NOTPARALLEL: all
-all: $(NM_NAME) $(OB_NAME)
+all: nm objdump
 
 # ↓ nm
 .PHONY: $(NM_NAME)
@@ -25,12 +25,20 @@ $(NM_NAME):
 	@ $(MAKE) -s -C $(NM_DIR) $(MAKEFLAGS) $(NM_TARGET)
 	@ cp $(NM_DIR)/$(NM_TARGET) $@
 
+.PHONY: nm
+nm: $(NM_NAME)
+	@ cp $^ $@
+
 # ↓ objdump
 .PHONY: $(OB_NAME)
 $(OB_NAME): OB_TARGET ?= $@
 $(OB_NAME):
 	@ $(MAKE) -s -C $(OB_DIR) $(MAKEFLAGS) $(OB_TARGET)
 	@ cp $(OB_DIR)/$(OB_TARGET) $@
+
+.PHONY: objdump
+objdump: $(OB_NAME)
+	@ cp $^ $@
 
 # ↓ Custom binaries
 .PHONY: asan

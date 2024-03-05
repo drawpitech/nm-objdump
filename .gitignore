@@ -2,6 +2,8 @@
 *.out
 my_nm
 my_objdump
+nm
+objdump
 unit_tests
 asan
 prof
