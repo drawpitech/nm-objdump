@@ -82,7 +82,8 @@ int my_nm(UNUSED int argc, char **argv)
     Elf64_Shdr *strtab_shdr = NULL;
     symbol_t *symbols = NULL;
 
-    if (!get_args(argv, &bin, LEN_OF(NM_ARGS), NM_ARGS) || binary_open(&bin) == NULL)
+    if (!get_args(argv, &bin, LEN_OF(NM_ARGS), NM_ARGS) ||
+        binary_open(&bin) == NULL)
         return RET_ERROR;
     symbols_shdr = binary_get_type(&bin, SHT_SYMTAB);
     strtab_shdr = binary_get_table(&bin, SHT_STRTAB, ".strtab");
