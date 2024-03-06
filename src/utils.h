@@ -44,6 +44,8 @@ bool get_args(int argc, char **argv, binary_t *bin);
 
 binary_t *binary_open(binary_t *bin);
 void binary_free(binary_t *bin);
+Elf64_Shdr *binary_get_type(binary_t *bin, Elf64_Word type);
+Elf64_Shdr *binary_get_table(binary_t *bin, Elf64_Word type, const char *name);
 
 int noprog(int argc, char **argv);
 int my_objdump(int argc, char **argv);

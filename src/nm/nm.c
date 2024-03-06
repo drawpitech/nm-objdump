@@ -50,26 +50,6 @@ static void print_nm(const symbol_t *symbols)
     }
 }
 
-static Elf64_Shdr *find_type(binary_t *bin, Elf64_Word type)
-{
-    for (int i = 0; i < bin->ehdr->e_shnum; i++)
-        if (bin->shdr[i].sh_type == type)
-            return bin->shdr + i;
-    return NULL;
-}
-
-static Elf64_Shdr *find_table(binary_t *bin, Elf64_Word type, const char *name)
-{
-    const char *const shstrtab =
-        (char *)(bin->mem + bin->shdr[bin->ehdr->e_shstrndx].sh_offset);
-
-    for (int i = 0; i < bin->ehdr->e_shnum; i++)
-        if (bin->shdr[i].sh_type == type &&
-            strcmp(shstrtab + bin->shdr[i].sh_name, name) == 0)
-            return bin->shdr + i;
-    return NULL;
-}
-
 static symbol_t *get_symbols(
     binary_t *bin, Elf64_Shdr *symbols_shdr, Elf64_Shdr *strtab_shdr)
 {
@@ -104,8 +84,8 @@ int my_nm(int argc, char **argv)
 
     if (!get_args(argc, argv, &bin) || binary_open(&bin) == NULL)
         return RET_ERROR;
-    symbols_shdr = find_type(&bin, SHT_SYMTAB);
-    strtab_shdr = find_table(&bin, SHT_STRTAB, ".strtab");
+    symbols_shdr = binary_get_type(&bin, SHT_SYMTAB);
+    strtab_shdr = binary_get_table(&bin, SHT_STRTAB, ".strtab");
     if (symbols_shdr == NULL || strtab_shdr == NULL) {
         fprintf(stderr, "Failed to find the symbol/string table section.\n");
         binary_free(&bin);
