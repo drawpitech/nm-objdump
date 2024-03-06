@@ -20,3 +20,5 @@ static const arg_t OB_ARGS[] = {
     {FLG_FULL_CONTENT, 's', "full-content",
      "Display the full contents of all sections requested"},
 };
+
+int print_header(binary_t *bin);
