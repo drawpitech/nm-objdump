@@ -11,6 +11,10 @@
 
 int my_objdump(UNUSED int argc, UNUSED char **argv)
 {
-    printf("objdump\n");
-    return 0;
+    binary_t bin = {0};
+
+    if (!get_args(argc, argv, &bin) || binary_open(&bin) == NULL)
+        return RET_ERROR;
+    binary_free(&bin);
+    return RET_VALID;
 }

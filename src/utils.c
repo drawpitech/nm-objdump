@@ -22,7 +22,7 @@ int ret_error(const char *name, int value)
 bool get_args(int argc, char **argv, binary_t *bin)
 {
     if (argc < 2) {
-        fprintf(stderr, "usage: my_nm <filename>\n");
+        fprintf(stderr, "usage: %s <filename>\n", PROGNAME);
         return false;
     }
     strcpy(bin->filename, argv[1]);
