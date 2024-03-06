@@ -5,17 +5,20 @@
 ** objdump
 */
 
+#include "objdump.h"
+
 #include <stdio.h>
 #include <string.h>
 
-#include "../utils.h"
+#include "utils.h"
 
-int my_objdump(UNUSED int argc, UNUSED char **argv)
+int my_objdump(UNUSED int argc, char **argv)
 {
     binary_t bin = {0};
     Elf64_Shdr *start_addr = NULL;
 
-    if (!get_args(argc, argv, &bin) || binary_open(&bin) == NULL)
+    if (!get_args(argv, &bin, LEN_OF(OB_ARGS), OB_ARGS) ||
+        binary_open(&bin) == NULL)
         return RET_ERROR;
     start_addr = binary_get_table(&bin, 0, ".init");
     if (start_addr == NULL) {

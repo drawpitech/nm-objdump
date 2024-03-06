@@ -10,6 +10,8 @@
 #include <elf.h>
 #include <linux/limits.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <sys/stat.h>
 
 #define STRINGIFY(x) #x
@@ -31,16 +33,25 @@ enum {
 };
 
 typedef struct {
+    uint16_t flag;
+    char c;
+    char *name;
+    char *desc;
+} arg_t;
+
+typedef struct {
     char filename[PATH_MAX];
     int fd;
     struct stat st;
     unsigned char *mem;
     Elf64_Ehdr *ehdr;
     Elf64_Shdr *shdr;
+    uint16_t args;
 } binary_t;
 
 int ret_error(const char *name, int value);
-bool get_args(int argc, char **argv, binary_t *bin);
+bool get_args(
+    char **argv, binary_t *bin, size_t size, const arg_t options[size]);
 
 binary_t *binary_open(binary_t *bin);
 void binary_free(binary_t *bin);

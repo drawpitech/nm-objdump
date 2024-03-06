@@ -75,14 +75,14 @@ static symbol_t *get_symbols(
     return symbols;
 }
 
-int my_nm(int argc, char **argv)
+int my_nm(UNUSED int argc, char **argv)
 {
     binary_t bin = {0};
     Elf64_Shdr *symbols_shdr = NULL;
     Elf64_Shdr *strtab_shdr = NULL;
     symbol_t *symbols = NULL;
 
-    if (!get_args(argc, argv, &bin) || binary_open(&bin) == NULL)
+    if (!get_args(argv, &bin, LEN_OF(NM_ARGS), NM_ARGS) || binary_open(&bin) == NULL)
         return RET_ERROR;
     symbols_shdr = binary_get_type(&bin, SHT_SYMTAB);
     strtab_shdr = binary_get_table(&bin, SHT_STRTAB, ".strtab");
