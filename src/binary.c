@@ -87,7 +87,7 @@ Elf64_Shdr *binary_get_table(binary_t *bin, Elf64_Word type, const char *name)
         (char *)(bin->mem + bin->shdr[bin->ehdr->e_shstrndx].sh_offset);
 
     for (int i = 0; i < bin->ehdr->e_shnum; i++)
-        if (bin->shdr[i].sh_type == type &&
+        if ((type == 0 || bin->shdr[i].sh_type == type) &&
             strcmp(shstrtab + bin->shdr[i].sh_name, name) == 0)
             return bin->shdr + i;
     return NULL;
