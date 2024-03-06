@@ -22,3 +22,4 @@ static const arg_t OB_ARGS[] = {
 };
 
 int print_header(binary_t *bin);
+int print_full(binary_t *bin);
