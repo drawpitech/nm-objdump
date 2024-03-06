@@ -32,6 +32,7 @@
       {
         devShells.default = pkgs.mkShell {
           packages = packages.nm.buildInputs ++ (with pkgs; [
+            hexyl
             criterion
             gcovr
             ltrace
