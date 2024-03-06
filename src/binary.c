@@ -17,14 +17,6 @@
 
 #include "utils.h"
 
-static bool is_valid_elf(binary_t *nm)
-{
-    if (nm->mem[0] == 0x7f && strncmp((char *)&nm->mem[1], "ELF", 3) == 0)
-        return true;
-    fprintf(stderr, "Not a valid ELF file.\n");
-    return false;
-}
-
 static bool get_file(binary_t *bin)
 {
     bin->fd = open(bin->filename, O_RDONLY);
@@ -59,7 +51,12 @@ binary_t *binary_open(binary_t *bin)
         binary_free(bin);
         return NULL;
     }
-    return is_valid_elf(bin) ? bin : NULL;
+    if (memcmp(bin->ehdr->e_ident, ELFMAG, SELFMAG) != 0) {
+        fprintf(stderr, "Not a valid ELF file.\n");
+        binary_free(bin);
+        return NULL;
+    }
+    return bin;
 }
 
 void binary_free(binary_t *bin)
