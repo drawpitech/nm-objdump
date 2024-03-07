@@ -6,6 +6,7 @@
 */
 
 #include <ctype.h>
+#include <string.h>
 #include <sys/param.h>
 #include <unistd.h>
 
@@ -38,9 +39,11 @@ static void print_section(
     binary_t *bin, const char *const shstrtab, Elf64_Shdr *section)
 {
     size_t max_addr_size = 0;
+
     if (section->sh_size == 0 || section->sh_type == SHT_NOBITS)
         return;
-    max_addr_size = snprintf(NULL, 0, "%lx", section->sh_addr + section->sh_size - 1);
+    max_addr_size =
+        snprintf(NULL, 0, "%lx", section->sh_addr + section->sh_size - 1);
     printf("Contents of section %s:\n", &shstrtab[section->sh_name]);
     for (size_t i = 0; i < section->sh_size; i += 16)
         print_line(bin, max_addr_size, section, i);
@@ -50,8 +53,16 @@ int print_full(binary_t *bin)
 {
     const char *const shstrtab =
         (char *)(bin->mem + bin->shdr[bin->ehdr->e_shstrndx].sh_offset);
+    bool valid = true;
+    static const char *invalid_sections[] = {
+        ".symtab", ".strtab", ".shstrtab"};
 
-    for (int i = 0; i < bin->ehdr->e_shnum; i++)
-        print_section(bin, shstrtab, bin->shdr + i);
+    for (int i = 0; i < bin->ehdr->e_shnum; i++) {
+        for (size_t j = 0; valid && j < LEN_OF(invalid_sections); j++)
+            valid =
+                !!strcmp(&shstrtab[bin->shdr[i].sh_name], invalid_sections[j]);
+        if (valid)
+            print_section(bin, shstrtab, bin->shdr + i);
+    }
     return RET_VALID;
 }
