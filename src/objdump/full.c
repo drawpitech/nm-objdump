@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2024
 ** nm/objdump
 ** File description:
-** header
+** full
 */
 
 #include <ctype.h>
@@ -29,6 +29,7 @@ static void print_line(binary_t *bin, Elf64_Shdr *section, size_t offset)
         c = bin->mem[section->sh_offset + offset + i];
         printf("%c", isprint(c) ? c : '.');
     }
+    printf("%*s", 16 - size, "");
     printf("\n");
 }
 
