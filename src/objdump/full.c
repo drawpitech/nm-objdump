@@ -12,13 +12,14 @@
 #include "objdump.h"
 #include "utils.h"
 
-static void print_line(binary_t *bin, Elf64_Shdr *section, size_t offset)
+static void print_line(
+    binary_t *bin, size_t addr_size, Elf64_Shdr *section, size_t offset)
 {
     size_t size = MIN(16, section->sh_size - offset);
     size_t written = 0;
     char c = '\0';
 
-    printf(" %04lx ", section->sh_addr + offset);
+    printf(" %0*lx ", MAX(4, (int)addr_size), section->sh_addr + offset);
     for (size_t i = 0; i < size; i++) {
         written += printf("%02x", bin->mem[section->sh_offset + offset + i]);
         if (i % 4 == 3)
@@ -36,11 +37,13 @@ static void print_line(binary_t *bin, Elf64_Shdr *section, size_t offset)
 static void print_section(
     binary_t *bin, const char *const shstrtab, Elf64_Shdr *section)
 {
+    size_t max_addr_size = 0;
     if (section->sh_size == 0 || section->sh_type == SHT_NOBITS)
         return;
+    max_addr_size = snprintf(NULL, 0, "%lx", section->sh_addr + section->sh_size - 1);
     printf("Contents of section %s:\n", &shstrtab[section->sh_name]);
     for (size_t i = 0; i < section->sh_size; i += 16)
-        print_line(bin, section, i);
+        print_line(bin, max_addr_size, section, i);
 }
 
 int print_full(binary_t *bin)
