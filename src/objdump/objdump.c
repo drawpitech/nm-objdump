@@ -12,6 +12,16 @@
 
 #include "utils.h"
 
+const char *get_archi(const binary_t *bin)
+{
+    const char *arch = NULL;
+
+    if (bin->ehdr->e_machine >= LEN_OF(EVENT_TABLE))
+        return EVENT_TABLE[0];
+    arch = EVENT_TABLE[bin->ehdr->e_machine];
+    return (arch != NULL) ? arch : EVENT_TABLE[0];
+}
+
 int my_objdump(UNUSED int argc, char **argv)
 {
     binary_t bin = {0};
@@ -21,7 +31,8 @@ int my_objdump(UNUSED int argc, char **argv)
         return RET_ERROR;
     printf(
         "\n%s:     file format elf%d-%s\n", bin.filename,
-        bin.ehdr->e_ident[EI_CLASS] ? 64 : 32, "x86-64");
+        (bin.ehdr->e_ident[EI_CLASS] == ELFCLASS32) ? 32 : 64,
+        get_archi(&bin));
     if (bin.args & FLG_HEADER && print_header(&bin) == RET_ERROR)
         return RET_ERROR;
     printf("\n");
