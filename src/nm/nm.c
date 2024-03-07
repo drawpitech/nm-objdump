@@ -39,6 +39,17 @@ static int cmp(const symbol_t *a, const symbol_t *b)
     }
 }
 
+static char symbol_type(symbol_t *symbol)
+{
+    unsigned char bind = ELF64_ST_BIND(symbol->symbol->st_info);
+    unsigned char type = ELF64_ST_TYPE(symbol->symbol->st_info);
+
+    switch (type) {
+        default:
+            return 'U';
+    }
+}
+
 static void print_nm(const symbol_t *symbols)
 {
     for (size_t i = 0; symbols[i].name; i++) {
@@ -46,7 +57,7 @@ static void print_nm(const symbol_t *symbols)
             printf("%16s", "");
         else
             printf("%016lx", symbols[i].symbol->st_value);
-        printf(" %s\n", symbols[i].name);
+        printf(" %c %s\n", symbol_type(symbols + i), symbols[i].name);
     }
 }
 
