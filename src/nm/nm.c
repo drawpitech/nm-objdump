@@ -63,7 +63,7 @@ static symbol_t *get_symbols(
         return NULL;
     memset(symbols, 0, sizeof(*symbols) * (size + 1));
     for (size_t i = 0; i < size; i++) {
-        if (arr[i].st_name == 0 && ELF64_ST_BIND(arr[i].st_info) == STB_LOCAL)
+        if (arr[i].st_name == 0 || ELF64_ST_TYPE(arr[i].st_info) == STT_FILE)
             continue;
         symbols[index].name = names + arr[i].st_name;
         symbols[index].symbol = arr + i;
