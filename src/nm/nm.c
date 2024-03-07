@@ -26,10 +26,10 @@ static int cmp(const symbol_t *a, const symbol_t *b)
     const char *str2 = b->name;
 
     while (true) {
-        for (; !isalpha(*str1) && *str1; str1++)
-            ;
-        for (; !isalpha(*str2) && *str2; str2++)
-            ;
+        while (!isalnum(*str1) && *str1)
+            str1++;
+        while (!isalnum(*str2) && *str2)
+            str2++;
         if (!*str1 || !*str2)
             return *str1 - *str2;
         if (tolower(*str1) != tolower(*str2))
