@@ -18,7 +18,7 @@ static void print_line(
 {
     size_t size = MIN(16, section->sh_size - offset);
     size_t written = 0;
-    char c = '\0';
+    unsigned char c = '\0';
 
     printf(" %0*lx ", MAX(4, (int)addr_size), section->sh_addr + offset);
     for (size_t i = 0; i < size; i++) {
