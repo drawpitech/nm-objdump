@@ -49,20 +49,24 @@ static void print_section(
         print_line(bin, max_addr_size, section, i);
 }
 
+static bool symbol_ignored(const char *name)
+{
+    static const char *const ignored_sections[] = {
+        ".bss", ".shstrtab", ".strtab", ".symtab"};
+    bool res = true;
+
+    for (size_t i = 0; res && i < LEN_OF(ignored_sections); i++)
+        res = !!strcmp(name, ignored_sections[i]);
+    return res;
+}
+
 int print_full(binary_t *bin)
 {
     const char *const shstrtab =
         (char *)(bin->mem + bin->shdr[bin->ehdr->e_shstrndx].sh_offset);
-    bool valid = true;
-    static const char *ignored_sections[] = {
-        ".bss", ".shstrtab", ".strtab", ".symtab"};
 
-    for (int i = 0; i < bin->ehdr->e_shnum; i++) {
-        for (size_t j = 0; valid && j < LEN_OF(ignored_sections); j++)
-            valid =
-                !!strcmp(&shstrtab[bin->shdr[i].sh_name], ignored_sections[j]);
-        if (valid)
+    for (int i = 0; i < bin->ehdr->e_shnum; i++)
+        if (symbol_ignored(&shstrtab[bin->shdr[i].sh_name]))
             print_section(bin, shstrtab, bin->shdr + i);
-    }
     return RET_VALID;
 }
