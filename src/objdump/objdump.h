@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "flags.h"
 #include "utils.h"
 
 enum {
@@ -18,6 +19,18 @@ static const char *const EVENT_TABLE[] = {
     [EM_NONE] = "Unknown",
     [EM_X86_64] = "i386:x86-64",
     [EM_386] = "i386",
+};
+
+typedef struct {
+    uint32_t flag;
+    const char *str;
+} header_flag_t;
+
+static const header_flag_t FLAGS[] = {
+    [ET_NONE] = {0, ""},
+    [ET_REL] = {HAS_SYMS | HAS_RELOC, "HAS_RELOC, HAS_SYMS"},
+    [ET_EXEC] = {D_PAGED | HAS_SYMS | EXEC_P, "EXEC_P, HAS_SYMS, D_PAGED"},
+    [ET_DYN] = {D_PAGED | DYNAMIC | HAS_SYMS, "HAS_SYMS | DYNAMIC | D_PAGED"},
 };
 
 static const arg_t OB_ARGS[] = {
