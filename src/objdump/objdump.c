@@ -12,14 +12,14 @@
 
 #include "utils.h"
 
-const char *get_archi(const binary_t *bin)
+const file_type_t *get_archi(const binary_t *bin)
 {
-    const char *arch = NULL;
+    const file_type_t *arch = NULL;
 
-    if (bin->ehdr->e_machine >= LEN_OF(EVENT_TABLE))
-        return EVENT_TABLE[0];
-    arch = EVENT_TABLE[bin->ehdr->e_machine];
-    return (arch != NULL) ? arch : EVENT_TABLE[0];
+    if (bin->ehdr->e_machine >= LEN_OF(HEADER_TYPE))
+        return &HEADER_TYPE[0];
+    arch = &HEADER_TYPE[bin->ehdr->e_machine];
+    return (arch != NULL) ? arch : &HEADER_TYPE[0];
 }
 
 int my_objdump(UNUSED int argc, char **argv)
@@ -32,7 +32,7 @@ int my_objdump(UNUSED int argc, char **argv)
     printf(
         "\n%s:     file format elf%d-%s\n", bin.filename,
         (bin.ehdr->e_ident[EI_CLASS] == ELFCLASS32) ? 32 : 64,
-        get_archi(&bin));
+        get_archi(&bin)->type);
     if (bin.args & FLG_HEADER && print_header(&bin) == RET_ERROR)
         return RET_ERROR;
     printf("\n");

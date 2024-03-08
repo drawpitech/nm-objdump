@@ -15,10 +15,15 @@ enum {
     FLG_FULL_CONTENT = 1 << 1,
 };
 
-static const char *const EVENT_TABLE[] = {
-    [EM_NONE] = "Unknown",
-    [EM_X86_64] = "i386:x86-64",
-    [EM_386] = "i386",
+typedef struct {
+    const char *archi;
+    const char *type;
+} file_type_t;
+
+static const file_type_t HEADER_TYPE[] = {
+    [EM_NONE] = { "Unknown", "Unknown" },
+    [EM_X86_64] = { "i386:x86-64", "x86-64" },
+    [EM_386] = { "i386", "i386" },
 };
 
 typedef struct {
@@ -42,4 +47,4 @@ static const arg_t OB_ARGS[] = {
 
 int print_header(binary_t *bin);
 int print_full(binary_t *bin);
-const char *get_archi(const binary_t *bin);
+const file_type_t *get_archi(const binary_t *bin);

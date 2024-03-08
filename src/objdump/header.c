@@ -23,6 +23,6 @@ int print_header(binary_t *bin)
         "architecture: %s, flags 0x%08x:\n"
         "%s\n"
         "start address 0x%016lx\n",
-        get_archi(bin), flag->flag, flag->str, bin->ehdr->e_entry);
+        get_archi(bin)->archi, flag->flag, flag->str, bin->ehdr->e_entry);
     return RET_VALID;
 }
