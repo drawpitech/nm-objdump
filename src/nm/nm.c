@@ -31,7 +31,8 @@ static int cmp(const symbol_t *a, const symbol_t *b)
         while (!isalnum(*str2) && *str2)
             str2++;
         if (!*str1 || !*str2)
-            return *str1 - *str2;
+            return (*str1 == *str2) ? (int)(strlen(b->name) - strlen(a->name))
+                                    : *str1 - *str2;
         if (tolower(*str1) != tolower(*str2))
             return tolower(*str1) - tolower(*str2);
         str1 += 1;
