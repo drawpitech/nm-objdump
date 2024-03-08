@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include <elf.h>
 #include <fcntl.h>
+#include <locale.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,22 +23,16 @@
 
 static int cmp(const symbol_t *a, const symbol_t *b)
 {
-    const char *str1 = a->name;
-    const char *str2 = b->name;
+    return strcoll(a->name, b->name);
+}
 
-    while (true) {
-        while (!isalnum(*str1) && *str1)
-            str1++;
-        while (!isalnum(*str2) && *str2)
-            str2++;
-        if (!*str1 || !*str2)
-            return (*str1 == *str2) ? (int)(strlen(b->name) - strlen(a->name))
-                                    : *str1 - *str2;
-        if (tolower(*str1) != tolower(*str2))
-            return tolower(*str1) - tolower(*str2);
-        str1 += 1;
-        str2 += 1;
-    }
+static void sort_symbols(size_t size, symbol_t symbols[size])
+{
+    setlocale(LC_CTYPE, "");
+    setlocale(LC_COLLATE, "");
+    qsort(
+        symbols, size, sizeof *symbols,
+        (int (*)(const void *, const void *))cmp);
 }
 
 static char symbol_type(const symbol_t *symbol)
@@ -83,9 +78,7 @@ static symbol_t *get_symbols(
         symbols[index].symbol = arr + i;
         index += 1;
     }
-    qsort(
-        symbols, index, sizeof(*symbols),
-        (int (*)(const void *, const void *))cmp);
+    sort_symbols(index, symbols);
     return symbols;
 }
 
