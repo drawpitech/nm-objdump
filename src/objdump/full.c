@@ -35,8 +35,7 @@ static void print_line(
     printf("\n");
 }
 
-static void print_section(
-    binary_t *bin, const char *const shstrtab, Elf64_Shdr *section)
+static void print_section(binary_t *bin, const char *name, Elf64_Shdr *section)
 {
     size_t max_addr_size = 0;
 
@@ -44,7 +43,7 @@ static void print_section(
         return;
     max_addr_size =
         snprintf(NULL, 0, "%lx", section->sh_addr + section->sh_size - 1);
-    printf("Contents of section %s:\n", &shstrtab[section->sh_name]);
+    printf("Contents of section %s:\n", name);
     for (size_t i = 0; i < section->sh_size; i += 16)
         print_line(bin, max_addr_size, section, i);
 }
@@ -64,9 +63,12 @@ int print_full(binary_t *bin)
 {
     const char *const shstrtab =
         (char *)(bin->mem + bin->shdr[bin->ehdr->e_shstrndx].sh_offset);
+    const char *name = NULL;
 
-    for (int i = 0; i < bin->ehdr->e_shnum; i++)
-        if (symbol_ignored(&shstrtab[bin->shdr[i].sh_name]))
-            print_section(bin, shstrtab, bin->shdr + i);
+    for (int i = 0; i < bin->ehdr->e_shnum; i++) {
+        name = &shstrtab[bin->shdr[i].sh_name];
+        if (symbol_ignored(name))
+            print_section(bin, name, bin->shdr + i);
+    }
     return RET_VALID;
 }
