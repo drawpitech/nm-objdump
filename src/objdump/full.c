@@ -54,13 +54,13 @@ int print_full(binary_t *bin)
     const char *const shstrtab =
         (char *)(bin->mem + bin->shdr[bin->ehdr->e_shstrndx].sh_offset);
     bool valid = true;
-    static const char *invalid_sections[] = {
-        ".symtab", ".strtab", ".shstrtab"};
+    static const char *ignored_sections[] = {
+        ".bss", ".shstrtab", ".strtab", ".symtab"};
 
     for (int i = 0; i < bin->ehdr->e_shnum; i++) {
-        for (size_t j = 0; valid && j < LEN_OF(invalid_sections); j++)
+        for (size_t j = 0; valid && j < LEN_OF(ignored_sections); j++)
             valid =
-                !!strcmp(&shstrtab[bin->shdr[i].sh_name], invalid_sections[j]);
+                !!strcmp(&shstrtab[bin->shdr[i].sh_name], ignored_sections[j]);
         if (valid)
             print_section(bin, shstrtab, bin->shdr + i);
     }
