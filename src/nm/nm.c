@@ -52,6 +52,8 @@ static char symbol_type(const symbol_t *symbol)
 
 static void print_nm(const symbol_t *symbols)
 {
+    if (symbols == NULL)
+        return;
     for (size_t i = 0; symbols[i].name; i++) {
         if (symbols[i].symbol->st_value == 0)
             printf("%16s", "");
