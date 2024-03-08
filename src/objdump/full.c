@@ -26,12 +26,12 @@ static void print_line(
         if (i % 4 == 3)
             written += printf(" ");
     }
-    printf("%*s", (16 * 2 + 4) - written + 1, "");
+    printf("%*s", (int)((16 * 2 + 4) - written + 1), "");
     for (size_t i = 0; i < size; i++) {
         c = bin->mem[section->sh_offset + offset + i];
         printf("%c", isprint(c) ? c : '.');
     }
-    printf("%*s", 16 - size, "");
+    printf("%*s", (int)(16 - size), "");
     printf("\n");
 }
 

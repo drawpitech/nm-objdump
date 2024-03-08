@@ -39,7 +39,7 @@ static int cmp(const symbol_t *a, const symbol_t *b)
     }
 }
 
-static char symbol_type(symbol_t *symbol)
+static char symbol_type(const symbol_t *symbol)
 {
     unsigned char bind = ELF64_ST_BIND(symbol->symbol->st_info);
     unsigned char type = ELF64_ST_TYPE(symbol->symbol->st_info);
