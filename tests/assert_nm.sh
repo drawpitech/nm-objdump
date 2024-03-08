@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
-nix run .#nm -- "$@" > got.txt
-nm "$@" > exp.txt
-vimdiff got.txt exp.txt
+dir=$(mktemp -d)
+
+got="$dir/got"
+exp="$dir/exp"
+
+nix run .#nm -- "$@" > $got
+nm "$@" > $exp
+vimdiff $got $exp
