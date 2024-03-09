@@ -10,6 +10,8 @@
 #include "flags.h"
 #include "utils.h"
 
+#define OBJ_LINE_SIZE (16)
+
 enum {
     FLG_HEADER = 1 << 0,
     FLG_FULL_CONTENT = 1 << 1,

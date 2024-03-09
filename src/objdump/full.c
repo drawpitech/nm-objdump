@@ -26,12 +26,12 @@ static void print_line(
         if (i % 4 == 3)
             written += printf(" ");
     }
-    printf("%*s", (int)((16 * 2 + 4) - written + 1), "");
+    printf("%*s", (int)((OBJ_LINE_SIZE * 2 + 4) - written + 1), "");
     for (size_t i = 0; i < size; i++) {
         c = bin->mem[section->sh_offset + offset + i];
         printf("%c", isprint(c) ? c : '.');
     }
-    printf("%*s", (int)(16 - size), "");
+    printf("%*s", (int)(OBJ_LINE_SIZE - size), "");
     printf("\n");
 }
 
@@ -44,7 +44,7 @@ static void print_section(binary_t *bin, const char *name, Elf64_Shdr *section)
     max_addr_size =
         snprintf(NULL, 0, "%lx", section->sh_addr + section->sh_size - 1);
     printf("Contents of section %s:\n", name);
-    for (size_t i = 0; i < section->sh_size; i += 16)
+    for (size_t i = 0; i < section->sh_size; i += OBJ_LINE_SIZE)
         print_line(bin, max_addr_size, section, i);
 }
 
