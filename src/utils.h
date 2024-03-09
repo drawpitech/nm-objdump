@@ -44,6 +44,7 @@ typedef struct {
 int ret_error(const char *name, int value);
 bool get_args(
     char **argv, binary_t *bin, size_t size, const arg_t options[size]);
+void print_help(size_t size, const arg_t options[size]);
 
 int noprog(int argc, char **argv);
 int my_objdump(int argc, char **argv);

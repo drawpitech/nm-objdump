@@ -13,8 +13,9 @@
 #define OBJ_LINE_SIZE (16)
 
 enum {
-    FLG_HEADER = 1 << 0,
-    FLG_FULL_CONTENT = 1 << 1,
+    FLG_HELP = 1 << 0,
+    FLG_HEADER = 1 << 1,
+    FLG_FULL_CONTENT = 1 << 2,
 };
 
 typedef struct {
@@ -41,6 +42,7 @@ static const header_flag_t FLAGS[] = {
 };
 
 static const arg_t OB_ARGS[] = {
+    {FLG_HELP, 'h', "help", "Display the help message"},
     {FLG_HEADER, 'f', "file-header",
         "Display the contents of the overall file header"},
     {FLG_FULL_CONTENT, 's', "full-content",

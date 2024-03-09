@@ -75,26 +75,34 @@ static symbol_t *get_symbols(
     return sort_symbols(index, symbols), symbols;
 }
 
-int my_nm(UNUSED int argc, char **argv)
+static int exec_nm(binary_t *bin)
 {
-    binary_t bin = {0};
     void *symbols_shdr = NULL;
     void *strtab_shdr = NULL;
     symbol_t *symbols = NULL;
 
+    symbols_shdr = binary_get_type(bin, SHT_SYMTAB);
+    strtab_shdr = binary_get_table(bin, SHT_STRTAB, ".strtab");
+    if (symbols_shdr == NULL || strtab_shdr == NULL) {
+        fprintf(stderr, "Failed to find the symbol/string table section.\n");
+        binary_free(bin);
+        return RET_ERROR;
+    }
+    symbols = get_symbols(bin, symbols_shdr, strtab_shdr);
+    print_nm(bin, symbols);
+    binary_free(bin);
+    free(symbols);
+    return RET_VALID;
+}
+
+int my_nm(UNUSED int argc, char **argv)
+{
+    binary_t bin = {0};
+    int ret = RET_VALID;
+
     if (!get_args(argv, &bin, LEN_OF(NM_ARGS), NM_ARGS) ||
         binary_open(&bin) == NULL)
         return RET_ERROR;
-    symbols_shdr = binary_get_type(&bin, SHT_SYMTAB);
-    strtab_shdr = binary_get_table(&bin, SHT_STRTAB, ".strtab");
-    if (symbols_shdr == NULL || strtab_shdr == NULL) {
-        fprintf(stderr, "Failed to find the symbol/string table section.\n");
-        binary_free(&bin);
-        return RET_ERROR;
-    }
-    symbols = get_symbols(&bin, symbols_shdr, strtab_shdr);
-    print_nm(&bin, symbols);
-    binary_free(&bin);
-    free(symbols);
-    return RET_VALID;
+    ret |= exec_nm(&bin);
+    return ret;
 }

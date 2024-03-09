@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -63,7 +64,7 @@ static bool add_param(
     return true;
 }
 
-static void print_help(size_t size, const arg_t options[size])
+void print_help(size_t size, const arg_t options[size])
 {
     printf("Usage: %s [options] <filename>\n", PROGNAME);
     printf("Options:\n");
@@ -83,6 +84,10 @@ bool get_args(
     for (size_t i = 1; argv[i] != NULL; i++)
         if (!add_param(argv[i], bin, size, options))
             return false;
+    if (bin->args & 1) {
+        print_help(size, options);
+        exit(RET_VALID);
+    }
     if (bin->filename[0] == '\0') {
         print_help(size, options);
         return false;
