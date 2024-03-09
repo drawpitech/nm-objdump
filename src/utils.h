@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+#include "binary/binary.h"
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
@@ -39,24 +41,9 @@ typedef struct {
     char *desc;
 } arg_t;
 
-typedef struct {
-    char filename[PATH_MAX];
-    int fd;
-    struct stat st;
-    unsigned char *mem;
-    Elf64_Ehdr *ehdr;
-    Elf64_Shdr *shdr;
-    uint16_t args;
-} binary_t;
-
 int ret_error(const char *name, int value);
 bool get_args(
     char **argv, binary_t *bin, size_t size, const arg_t options[size]);
-
-binary_t *binary_open(binary_t *bin);
-void binary_free(binary_t *bin);
-Elf64_Shdr *binary_get_type(binary_t *bin, Elf64_Word type);
-Elf64_Shdr *binary_get_table(binary_t *bin, Elf64_Word type, const char *name);
 
 int noprog(int argc, char **argv);
 int my_objdump(int argc, char **argv);
