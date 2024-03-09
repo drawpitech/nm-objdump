@@ -27,6 +27,7 @@ CFLAGS += -D PROG=$(NAME)
 # Source files
 SRC := $(shell find . -name '*.c')
 SRC += $(shell find .. -maxdepth 1 -name '*.c')
+SRC += $(shell find ../binary -name '*.c')
 
 # ↓ Objects
 BUILD_DIR := .build

@@ -38,8 +38,6 @@ static bool map_file(binary_t *bin)
         ret_error("mmap", RET_ERROR);
         return false;
     }
-    bin->ehdr = (Elf64_Ehdr *)bin->mem;
-    bin->shdr = (Elf64_Shdr *)(bin->mem + bin->ehdr->e_shoff);
     return true;
 }
 
@@ -51,7 +49,7 @@ binary_t *binary_open(binary_t *bin)
         binary_free(bin);
         return NULL;
     }
-    if (memcmp(bin->ehdr->e_ident, ELFMAG, SELFMAG) != 0) {
+    if (memcmp(GETEHDRA(bin, 0, e_ident), ELFMAG, SELFMAG) != 0) {
         fprintf(stderr, "Not a valid ELF file.\n");
         binary_free(bin);
         return NULL;
@@ -70,22 +68,24 @@ void binary_free(binary_t *bin)
     memset(bin, 0, sizeof(binary_t));
 }
 
-Elf64_Shdr *binary_get_type(binary_t *bin, Elf64_Word type)
+void *binary_get_type(binary_t *bin, uint32_t type)
 {
-    for (int i = 0; i < bin->ehdr->e_shnum; i++)
-        if (bin->shdr[i].sh_type == type)
-            return bin->shdr + i;
+    uint16_t num = GETEHDRA(bin, 0, e_shnum);
+
+    for (int i = 0; i < num; i++)
+        if (GETSHDRA(bin, i, sh_type) == type)
+            return GETSHDR(bin, i);
     return NULL;
 }
 
-Elf64_Shdr *binary_get_table(binary_t *bin, Elf64_Word type, const char *name)
+void *binary_get_table(binary_t *bin, uint32_t type, const char *name)
 {
-    const char *const shstrtab =
-        (char *)(bin->mem + bin->shdr[bin->ehdr->e_shstrndx].sh_offset);
+    const char *const shstrtab = SHSTRTAB(bin);
+    uint16_t num = GETEHDRA(bin, 0, e_shnum);
 
-    for (int i = 0; i < bin->ehdr->e_shnum; i++)
-        if ((type == 0 || bin->shdr[i].sh_type == type) &&
-            strcmp(shstrtab + bin->shdr[i].sh_name, name) == 0)
-            return bin->shdr + i;
+    for (int i = 0; i < num; i++)
+        if ((type == 0 || GETSHDRA(bin, i, sh_type) == type) &&
+            strcmp(shstrtab + GETSHDRA(bin, i, sh_name), name) == 0)
+            return GETSHDR(bin, i);
     return NULL;
 }

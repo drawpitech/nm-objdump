@@ -7,7 +7,6 @@
 
 #include "nm.h"
 
-#include <ctype.h>
 #include <elf.h>
 #include <fcntl.h>
 #include <locale.h>
@@ -19,7 +18,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "../utils.h"
+#include "utils.h"
 
 static int cmp(const symbol_t *a, const symbol_t *b)
 {
@@ -35,36 +34,35 @@ static void sort_symbols(size_t size, symbol_t symbols[size])
         (int (*)(const void *, const void *))cmp);
 }
 
-static char symbol_type(const symbol_t *symbol)
+static char symbol_type(UNUSED const symbol_t *symbol)
 {
-    unsigned char bind = ELF64_ST_BIND(symbol->symbol->st_info);
-    unsigned char type = ELF64_ST_TYPE(symbol->symbol->st_info);
-
-    switch (type) {
-        default:
-            return 'U';
-    }
+    return 'U';
 }
 
-static void print_nm(const symbol_t *symbols)
+static void print_nm(binary_t *bin, const symbol_t *symbols)
 {
+    uint64_t val = 0;
+
     if (symbols == NULL)
         return;
     for (size_t i = 0; symbols[i].name; i++) {
-        if (symbols[i].symbol->st_value == 0)
+        val = SYMA(bin, symbols[i].symbol, 0, st_value);
+        if (val == 0)
             printf("%16s", "");
         else
-            printf("%016lx", symbols[i].symbol->st_value);
+            printf("%016lx", val);
         printf(" %c %s\n", symbol_type(symbols + i), symbols[i].name);
     }
 }
 
 static symbol_t *get_symbols(
-    binary_t *bin, Elf64_Shdr *symbols_shdr, Elf64_Shdr *strtab_shdr)
+    binary_t *bin, void *symbols_shdr, void *strtab_shdr)
 {
-    Elf64_Sym *arr = (Elf64_Sym *)(bin->mem + symbols_shdr->sh_offset);
-    const char *names = (const char *)(bin->mem + strtab_shdr->sh_offset);
-    const size_t size = symbols_shdr->sh_size / symbols_shdr->sh_entsize;
+    void *arr = bin->mem + TOSHDR(bin, symbols_shdr, sh_offset);
+    const char *names =
+        (const char *)(bin->mem + TOSHDR(bin, strtab_shdr, sh_offset));
+    const size_t size = TOSHDR(bin, symbols_shdr, sh_size) /
+                        TOSHDR(bin, symbols_shdr, sh_entsize);
     symbol_t *symbols = malloc(sizeof(*symbols) * (size + 1));
     size_t index = 0;
 
@@ -72,21 +70,21 @@ static symbol_t *get_symbols(
         return NULL;
     memset(symbols, 0, sizeof(*symbols) * (size + 1));
     for (size_t i = 0; i < size; i++) {
-        if (arr[i].st_name == 0 || ELF64_ST_TYPE(arr[i].st_info) == STT_FILE)
+        if (SYMA(bin, arr, i, st_name) == 0 ||
+            ST_TYPE(bin, arr, i) == STT_FILE)
             continue;
-        symbols[index].name = names + arr[i].st_name;
-        symbols[index].symbol = arr + i;
+        symbols[index].name = names + SYMA(bin, arr, i, st_name);
+        symbols[index].symbol = SYM(bin, arr, i);
         index += 1;
     }
-    sort_symbols(index, symbols);
-    return symbols;
+    return sort_symbols(index, symbols), symbols;
 }
 
 int my_nm(UNUSED int argc, char **argv)
 {
     binary_t bin = {0};
-    Elf64_Shdr *symbols_shdr = NULL;
-    Elf64_Shdr *strtab_shdr = NULL;
+    void *symbols_shdr = NULL;
+    void *strtab_shdr = NULL;
     symbol_t *symbols = NULL;
 
     if (!get_args(argv, &bin, LEN_OF(NM_ARGS), NM_ARGS) ||
@@ -100,7 +98,7 @@ int my_nm(UNUSED int argc, char **argv)
         return RET_ERROR;
     }
     symbols = get_symbols(&bin, symbols_shdr, strtab_shdr);
-    print_nm(symbols);
+    print_nm(&bin, symbols);
     binary_free(&bin);
     free(symbols);
     return RET_VALID;
