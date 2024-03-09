@@ -39,6 +39,7 @@
             valgrind
             bear
             gdb
+            nasm
           ]);
         };
 
