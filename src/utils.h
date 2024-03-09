@@ -41,9 +41,15 @@ typedef struct {
     char *desc;
 } arg_t;
 
+typedef struct {
+    uint32_t flag;
+    char **filenames;
+    size_t nb_files;
+} flags_t;
+
 int ret_error(const char *name, int value);
 bool get_args(
-    char **argv, binary_t *bin, size_t size, const arg_t options[size]);
+    char **argv, flags_t *flags, size_t size, const arg_t options[size]);
 void print_help(size_t size, const arg_t options[size]);
 
 int noprog(int argc, char **argv);

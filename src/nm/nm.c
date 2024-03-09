@@ -81,6 +81,8 @@ static int exec_nm(binary_t *bin)
     void *strtab_shdr = NULL;
     symbol_t *symbols = NULL;
 
+    if (binary_open(bin) == NULL)
+        return RET_ERROR;
     symbols_shdr = binary_get_type(bin, SHT_SYMTAB);
     strtab_shdr = binary_get_table(bin, SHT_STRTAB, ".strtab");
     if (symbols_shdr == NULL || strtab_shdr == NULL) {
@@ -99,10 +101,20 @@ int my_nm(UNUSED int argc, char **argv)
 {
     binary_t bin = {0};
     int ret = RET_VALID;
+    flags_t flags = {0};
 
-    if (!get_args(argv, &bin, LEN_OF(NM_ARGS), NM_ARGS) ||
-        binary_open(&bin) == NULL)
+    if (!get_args(argv, &flags, LEN_OF(NM_ARGS), NM_ARGS))
         return RET_ERROR;
-    ret |= exec_nm(&bin);
+    if (flags.nb_files == 0) {
+        print_help(LEN_OF(NM_ARGS), NM_ARGS);
+        return RET_ERROR;
+    }
+    for (size_t i = 0; i < flags.nb_files; i++) {
+        printf((flags.nb_files > 1) ? "\n%s:\n" : "", flags.filenames[i]);
+        strcpy(bin.filename, flags.filenames[i]);
+        bin.args = flags.flag;
+        ret |= exec_nm(&bin);
+    }
+    free(flags.filenames);
     return ret;
 }

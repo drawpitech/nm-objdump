@@ -8,6 +8,7 @@
 #include "objdump.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "utils.h"
@@ -25,6 +26,8 @@ const file_type_t *get_archi(const binary_t *bin)
 
 static int exec_objdump(binary_t *bin)
 {
+    if (binary_open(bin) == NULL)
+        return RET_ERROR;
     printf(
         "\n%s:     file format elf%d-%s\n", bin->filename,
         (GETEHDRA(bin, 0, e_ident)[EI_CLASS] == ELFCLASS32) ? 32 : 64,
@@ -42,14 +45,19 @@ int my_objdump(UNUSED int argc, char **argv)
 {
     binary_t bin = {0};
     int ret = RET_VALID;
+    flags_t flags = {0};
 
-    if (!get_args(argv, &bin, LEN_OF(OB_ARGS), OB_ARGS) ||
-        binary_open(&bin) == NULL)
+    if (!get_args(argv, &flags, LEN_OF(OB_ARGS), OB_ARGS))
         return RET_ERROR;
-    if (bin.args == 0) {
+    if (flags.flag == 0 || flags.nb_files == 0) {
         print_help(LEN_OF(OB_ARGS), OB_ARGS);
         return RET_ERROR;
     }
-    ret |= exec_objdump(&bin);
+    for (size_t i = 0; i < flags.nb_files; i++) {
+        strcpy(bin.filename, flags.filenames[i]);
+        bin.args = flags.flag;
+        ret |= exec_objdump(&bin);
+    }
+    free(flags.filenames);
     return ret;
 }

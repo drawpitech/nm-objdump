@@ -14,11 +14,11 @@
 #include "utils.h"
 
 static bool set_flag(
-    binary_t *bin, char c, size_t size, const arg_t options[size])
+    flags_t *flags, char c, size_t size, const arg_t options[size])
 {
     for (size_t i = 0; i < size; i++) {
         if (options[i].c == c) {
-            bin->args |= options[i].flag;
+            flags->flag |= options[i].flag;
             return true;
         }
     }
@@ -27,19 +27,19 @@ static bool set_flag(
 }
 
 static bool get_option(
-    binary_t *bin, char const *str, size_t size, const arg_t options[size])
+    flags_t *flags, char const *str, size_t size, const arg_t options[size])
 {
     bool err = false;
 
     if (*str != '-') {
         for (; *str; str++)
-            err |= !set_flag(bin, *str, size, options);
+            err |= !set_flag(flags, *str, size, options);
         return !err;
     }
     str += 1;
     for (size_t i = 0; i < size; i++) {
         if (options[i].name != NULL && strcmp(options[i].name, str) == 0) {
-            bin->args |= options[i].flag;
+            flags->flag |= options[i].flag;
             return true;
         }
     }
@@ -48,19 +48,20 @@ static bool get_option(
 }
 
 static bool add_param(
-    char *param, binary_t *bin, size_t size, const arg_t options[size])
+    flags_t *flags, char *param, size_t size, const arg_t options[size])
 {
     if (param == NULL || param[0] == '\0') {
         fprintf(stderr, "Invalid option `%s`\n", param);
         return false;
     }
     if (param[0] == '-')
-        return get_option(bin, param + 1, size, options);
-    if (bin->filename[0] != '\0') {
-        fprintf(stderr, "Cannot handle multiple files");
-        return false;
-    }
-    strcpy(bin->filename, param);
+        return get_option(flags, param + 1, size, options);
+    flags->nb_files += 1;
+    flags->filenames = reallocarray(
+        flags->filenames, flags->nb_files, sizeof *flags->filenames);
+    if (flags->filenames == NULL)
+        exit(RET_ERROR);
+    flags->filenames[flags->nb_files - 1] = param;
     return true;
 }
 
@@ -79,16 +80,16 @@ void print_help(size_t size, const arg_t options[size])
 }
 
 bool get_args(
-    char **argv, binary_t *bin, size_t size, const arg_t options[size])
+    char **argv, flags_t *flags, size_t size, const arg_t options[size])
 {
     for (size_t i = 1; argv[i] != NULL; i++)
-        if (!add_param(argv[i], bin, size, options))
+        if (!add_param(flags, argv[i], size, options))
             return false;
-    if (bin->args & 1) {
+    if (flags->flag & 1) {
         print_help(size, options);
         exit(RET_VALID);
     }
-    if (bin->filename[0] == '\0') {
+    if (flags->nb_files == 0) {
         print_help(size, options);
         return false;
     }
