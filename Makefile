@@ -27,7 +27,6 @@ $(NM_NAME):
 
 .PHONY: nm
 nm: $(NM_NAME)
-	@ cp $^ $@
 
 # ↓ objdump
 .PHONY: $(OB_NAME)
@@ -38,7 +37,6 @@ $(OB_NAME):
 
 .PHONY: objdump
 objdump: $(OB_NAME)
-	@ cp $^ $@
 
 # ↓ Custom binaries
 .PHONY: asan
