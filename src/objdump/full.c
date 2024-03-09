@@ -13,38 +13,39 @@
 #include "objdump.h"
 #include "utils.h"
 
-static void print_line(
-    binary_t *bin, size_t addr_size, Elf64_Shdr *section, size_t offset)
+static void print_line(binary_t *bin, size_t addr_size, void *sec, size_t off)
 {
-    size_t size = MIN(16, section->sh_size - offset);
-    size_t written = 0;
+    size_t size = MIN(16, TOSHDR(bin, sec, sh_size) - off);
+    size_t w = 0;
     unsigned char c = '\0';
 
-    printf(" %0*lx ", MAX(4, (int)addr_size), section->sh_addr + offset);
+    printf(" %0*lx ", MAX(4, (int)addr_size), TOSHDR(bin, sec, sh_addr) + off);
     for (size_t i = 0; i < size; i++) {
-        written += printf("%02x", bin->mem[section->sh_offset + offset + i]);
+        w += printf("%02x", bin->mem[TOSHDR(bin, sec, sh_offset) + off + i]);
         if (i % 4 == 3)
-            written += printf(" ");
+            w += printf(" ");
     }
-    printf("%*s", (int)((OBJ_LINE_SIZE * 2 + 4) - written + 1), "");
+    printf("%*s", (int)((OBJ_LINE_SIZE * 2 + 4) - w + 1), "");
     for (size_t i = 0; i < size; i++) {
-        c = bin->mem[section->sh_offset + offset + i];
+        c = bin->mem[TOSHDR(bin, sec, sh_offset) + off + i];
         printf("%c", isprint(c) ? c : '.');
     }
     printf("%*s", (int)(OBJ_LINE_SIZE - size), "");
     printf("\n");
 }
 
-static void print_section(binary_t *bin, const char *name, Elf64_Shdr *section)
+static void print_section(binary_t *bin, const char *name, void *section)
 {
     size_t max_addr_size = 0;
+    uint32_t sh_type = TOSHDR(bin, section, sh_type);
+    uint32_t sh_size = TOSHDR(bin, section, sh_size);
+    uint64_t sh_addr = TOSHDR(bin, section, sh_addr);
 
-    if (section->sh_size == 0 || section->sh_type == SHT_NOBITS)
+    if (sh_size == 0 || sh_type == SHT_NOBITS)
         return;
-    max_addr_size =
-        snprintf(NULL, 0, "%lx", section->sh_addr + section->sh_size - 1);
+    max_addr_size = snprintf(NULL, 0, "%lx", sh_addr + sh_size - 1);
     printf("Contents of section %s:\n", name);
-    for (size_t i = 0; i < section->sh_size; i += OBJ_LINE_SIZE)
+    for (size_t i = 0; i < sh_size; i += OBJ_LINE_SIZE)
         print_line(bin, max_addr_size, section, i);
 }
 
@@ -61,14 +62,14 @@ static bool symbol_ignored(const char *name)
 
 int print_full(binary_t *bin)
 {
-    const char *const shstrtab =
-        (char *)(bin->mem + bin->shdr[bin->ehdr->e_shstrndx].sh_offset);
+    const char *const shstrtab = SHSTRTAB(bin);
     const char *name = NULL;
+    uint16_t e_shnum = GETEHDRA(bin, 0, e_shnum);
 
-    for (int i = 0; i < bin->ehdr->e_shnum; i++) {
-        name = &shstrtab[bin->shdr[i].sh_name];
+    for (uint16_t i = 0; i < e_shnum; i++) {
+        name = &shstrtab[GETSHDRA(bin, i, sh_name)];
         if (symbol_ignored(name))
-            print_section(bin, name, bin->shdr + i);
+            print_section(bin, name, GETSHDR(bin, i));
     }
     return RET_VALID;
 }
