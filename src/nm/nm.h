@@ -15,7 +15,7 @@
 
 #define _A(a, s, t) ELF##a##_ST_##t((s)->st_info)
 #define _B(a, s, i, t) _A(a, _S(s, a, i), t)
-#define ST_BIND(b, s, i) (IS_64(b) ? _B(64, s, i, BIND) : _A(32, s, i, TYPE))
+#define ST_BIND(b, s, i) (IS_64(b) ? _B(64, s, i, BIND) : _B(32, s, i, TYPE))
 #define ST_TYPE(b, s, i) (IS_64(b) ? _B(64, s, i, TYPE) : _B(32, s, i, TYPE))
 
 enum {
@@ -30,3 +30,5 @@ typedef struct {
     const char *name;
     void *symbol;
 } symbol_t;
+
+char symbol_type(binary_t *bin, const symbol_t *sym);

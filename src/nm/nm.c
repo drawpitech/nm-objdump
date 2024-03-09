@@ -34,11 +34,6 @@ static void sort_symbols(size_t size, symbol_t symbols[size])
         (int (*)(const void *, const void *))cmp);
 }
 
-static char symbol_type(UNUSED const symbol_t *symbol)
-{
-    return 'U';
-}
-
 static void print_nm(binary_t *bin, const symbol_t *symbols)
 {
     uint64_t val = 0;
@@ -51,7 +46,7 @@ static void print_nm(binary_t *bin, const symbol_t *symbols)
             printf("%16s", "");
         else
             printf("%016lx", val);
-        printf(" %c %s\n", symbol_type(symbols + i), symbols[i].name);
+        printf(" %c %s\n", symbol_type(bin, symbols + i), symbols[i].name);
     }
 }
 
