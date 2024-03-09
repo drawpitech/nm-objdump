@@ -37,7 +37,7 @@
             gcovr
             ltrace
             valgrind
-            python311Packages.compiledb
+            bear
             gdb
           ]);
         };
