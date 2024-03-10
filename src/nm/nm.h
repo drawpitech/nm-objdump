@@ -29,6 +29,7 @@ static const arg_t NM_ARGS[] = {
 typedef struct {
     const char *name;
     void *symbol;
+    char c;
 } symbol_t;
 
 char symbol_type(binary_t *bin, const symbol_t *sym);

@@ -36,26 +36,22 @@ static void sort_symbols(size_t size, symbol_t symbols[size])
 
 static void print_nm(binary_t *bin, const symbol_t *symbols)
 {
-    uint64_t val = 0;
-
     if (symbols == NULL)
         return;
     for (size_t i = 0; symbols[i].name; i++) {
-        val = SYMA(bin, symbols[i].symbol, 0, st_value);
-        if (val == 0)
+        if (symbols[i].c == 'U' || symbols[i].c == 'w' || symbols[i].c == 'v')
             printf("%16s", "");
         else
-            printf("%016lx", val);
-        printf(" %c %s\n", symbol_type(bin, symbols + i), symbols[i].name);
+            printf("%016lx", SYMA(bin, symbols[i].symbol, 0, st_value));
+        printf(" %c %s\n", symbols[i].c, symbols[i].name);
     }
 }
 
 static symbol_t *get_symbols(
-    binary_t *bin, void *symbols_shdr, void *strtab_shdr)
+    binary_t *bin, void *symbols_shdr, void *strtab)
 {
     void *arr = bin->mem + TOSHDR(bin, symbols_shdr, sh_offset);
-    const char *names =
-        (const char *)(bin->mem + TOSHDR(bin, strtab_shdr, sh_offset));
+    const char *names = ((char *)bin->mem + TOSHDR(bin, strtab, sh_offset));
     const size_t size = TOSHDR(bin, symbols_shdr, sh_size) /
                         TOSHDR(bin, symbols_shdr, sh_entsize);
     symbol_t *symbols = malloc(sizeof(*symbols) * (size + 1));
@@ -70,6 +66,7 @@ static symbol_t *get_symbols(
             continue;
         symbols[index].name = names + SYMA(bin, arr, i, st_name);
         symbols[index].symbol = SYM(bin, arr, i);
+        symbols[index].c = symbol_type(bin, symbols + index);
         index += 1;
     }
     return sort_symbols(index, symbols), symbols;
