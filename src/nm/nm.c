@@ -78,8 +78,6 @@ static int exec_nm(binary_t *bin)
     void *strtab_shdr = NULL;
     symbol_t *symbols = NULL;
 
-    if (binary_open(bin) == NULL)
-        return RET_ERROR;
     symbols_shdr = binary_get_type(bin, SHT_SYMTAB);
     strtab_shdr = binary_get_table(bin, SHT_STRTAB, ".strtab");
     if (symbols_shdr == NULL || strtab_shdr == NULL) {
@@ -94,11 +92,18 @@ static int exec_nm(binary_t *bin)
     return RET_VALID;
 }
 
+static bool fill_bin(binary_t *bin, flags_t *flags, const char *filename)
+{
+    strcpy(bin->filename, filename);
+    bin->args = flags->flag;
+    return (binary_open(bin) != NULL);
+}
+
 int my_nm(UNUSED int argc, char **argv)
 {
     binary_t bin = {0};
-    int ret = RET_VALID;
     flags_t flags = {0};
+    int ret = RET_VALID;
 
     if (!get_args(argv, &flags, LEN_OF(NM_ARGS), NM_ARGS))
         return RET_ERROR;
@@ -107,9 +112,11 @@ int my_nm(UNUSED int argc, char **argv)
         return RET_ERROR;
     }
     for (size_t i = 0; i < flags.nb_files; i++) {
+        if (!fill_bin(&bin, &flags, flags.filenames[i])) {
+            ret = RET_ERROR;
+            continue;
+        }
         printf((flags.nb_files > 1) ? "\n%s:\n" : "", flags.filenames[i]);
-        strcpy(bin.filename, flags.filenames[i]);
-        bin.args = flags.flag;
         ret |= exec_nm(&bin);
     }
     free(flags.filenames);
