@@ -57,7 +57,7 @@ static bool symbol_ignored(const char *name)
 
     for (size_t i = 0; res && i < LEN_OF(ignored_sections); i++)
         res = !!strcmp(name, ignored_sections[i]);
-    return res;
+    return res && strncmp(name, ".rela", 5);
 }
 
 int print_full(binary_t *bin)
