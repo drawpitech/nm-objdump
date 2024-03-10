@@ -90,8 +90,9 @@ bool get_args(
         exit(RET_VALID);
     }
     if (flags->nb_files == 0) {
-        print_help(size, options);
-        return false;
+        flags->filenames = malloc(sizeof *flags->filenames);
+        flags->filenames[0] = "a.out";
+        flags->nb_files = 1;
     }
     return true;
 }

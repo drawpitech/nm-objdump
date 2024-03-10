@@ -109,10 +109,6 @@ int my_nm(UNUSED int argc, char **argv)
 
     if (!get_args(argv, &flags, LEN_OF(NM_ARGS), NM_ARGS))
         return RET_ERROR;
-    if (flags.nb_files == 0) {
-        print_help(LEN_OF(NM_ARGS), NM_ARGS);
-        return RET_ERROR;
-    }
     for (size_t i = 0; i < flags.nb_files; i++) {
         if (!fill_bin(&bin, &flags, flags.filenames[i])) {
             ret = RET_ERROR;
