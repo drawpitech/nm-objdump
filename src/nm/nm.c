@@ -36,13 +36,15 @@ static void sort_symbols(size_t size, symbol_t symbols[size])
 
 static void print_nm(binary_t *bin, const symbol_t *symbols)
 {
+    uint8_t len = ADDRLEN(bin);
+
     if (symbols == NULL)
         return;
     for (size_t i = 0; symbols[i].name; i++) {
         if (symbols[i].c == 'U' || symbols[i].c == 'w' || symbols[i].c == 'v')
-            printf("%16s", "");
+            printf("%*s", len, "");
         else
-            printf("%016lx", SYMA(bin, symbols[i].symbol, 0, st_value));
+            printf("%0*lx", len, SYMA(bin, symbols[i].symbol, 0, st_value));
         printf(" %c %s\n", symbols[i].c, symbols[i].name);
     }
 }

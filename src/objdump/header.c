@@ -22,8 +22,8 @@ int print_header(binary_t *bin)
     printf(
         "architecture: %s, flags 0x%08x:\n"
         "%s\n"
-        "start address 0x%016lx\n",
+        "start address 0x%0*lx\n",
         get_archi(bin)->archi, flag->flag, flag->str,
-        GETEHDRA(bin, 0, e_entry));
+        ADDRLEN(bin), GETEHDRA(bin, 0, e_entry));
     return RET_VALID;
 }

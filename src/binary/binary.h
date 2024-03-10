@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 
 #define IS_64(bin) (!!((bin)->mem[EI_CLASS] == ELFCLASS64))
+#define ADDRLEN(bin) (IS_64(bin) ? 16 : 8)
 #define VC(e) (void *)(e)
 
 #define EC(a, e) ((Elf##a##_Ehdr *)VC(e))
