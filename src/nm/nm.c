@@ -84,7 +84,7 @@ static int exec_nm(binary_t *bin)
     if (symbols_shdr == NULL || strtab_shdr == NULL) {
         binary_free(bin);
         return ret_error(
-            "", RET_ERROR,
+            "", RET_VALID,
             "Failed to find the symbol/string table section.\n");
     }
     symbols = get_symbols(bin, symbols_shdr, strtab_shdr);
