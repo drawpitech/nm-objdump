@@ -34,7 +34,7 @@ static char get_section_symbol(uint32_t sh_type, uint64_t sh_flags)
         return 'T';
     if (sh_type == SHT_DYNAMIC)
         return 'D';
-    return '?';
+    return (sh_flags != SHF_WRITE) ? 'R' : '?';
 }
 
 static char get_symbol(binary_t *bin, const symbol_t *sym)
