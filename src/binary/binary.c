@@ -20,24 +20,13 @@
 static bool get_file(binary_t *bin)
 {
     bin->fd = open(bin->filename, O_RDONLY);
-    if (bin->fd < 0) {
-        ret_error("open", 0);
-        return false;
-    }
-    if (fstat(bin->fd, &bin->st) < 0) {
-        ret_error("fstat", 0);
-        return false;
-    }
-    return true;
-}
-
-static bool map_file(binary_t *bin)
-{
+    if (bin->fd < 0)
+        return ret_error("open", false, NULL);
+    if (fstat(bin->fd, &bin->st) < 0)
+        return ret_error("fstat", false, NULL);
     bin->mem = mmap(NULL, bin->st.st_size, PROT_READ, MAP_SHARED, bin->fd, 0);
-    if (bin->mem == MAP_FAILED) {
-        ret_error("mmap", RET_ERROR);
-        return false;
-    }
+    if (bin->mem == MAP_FAILED)
+        return ret_error("mmap", false, NULL);
     return true;
 }
 
@@ -45,12 +34,12 @@ binary_t *binary_open(binary_t *bin)
 {
     if (bin == NULL)
         return NULL;
-    if (!get_file(bin) || !map_file(bin)) {
+    if (!get_file(bin)) {
         binary_free(bin);
         return NULL;
     }
     if (memcmp(GETEHDRA(bin, 0, e_ident), ELFMAG, SELFMAG) != 0) {
-        fprintf(stderr, "Not a valid ELF file.\n");
+        ret_error(bin->filename, 0, "File format not recognized\n");
         binary_free(bin);
         return NULL;
     }

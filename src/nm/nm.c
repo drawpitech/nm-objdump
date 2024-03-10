@@ -49,8 +49,7 @@ static void print_nm(binary_t *bin, const symbol_t *symbols)
     }
 }
 
-static symbol_t *get_symbols(
-    binary_t *bin, void *symbols_shdr, void *strtab)
+static symbol_t *get_symbols(binary_t *bin, void *symbols_shdr, void *strtab)
 {
     void *arr = bin->mem + TOSHDR(bin, symbols_shdr, sh_offset);
     const char *names = ((char *)bin->mem + TOSHDR(bin, strtab, sh_offset));
@@ -83,9 +82,10 @@ static int exec_nm(binary_t *bin)
     symbols_shdr = binary_get_type(bin, SHT_SYMTAB);
     strtab_shdr = binary_get_table(bin, SHT_STRTAB, ".strtab");
     if (symbols_shdr == NULL || strtab_shdr == NULL) {
-        fprintf(stderr, "Failed to find the symbol/string table section.\n");
         binary_free(bin);
-        return RET_ERROR;
+        return ret_error(
+            "", RET_ERROR,
+            "Failed to find the symbol/string table section.\n");
     }
     symbols = get_symbols(bin, symbols_shdr, strtab_shdr);
     print_nm(bin, symbols);

@@ -47,7 +47,7 @@ typedef struct {
     size_t nb_files;
 } flags_t;
 
-int ret_error(const char *name, int value);
+int ret_error(const char *name, int value, const char *str);
 bool get_args(
     char **argv, flags_t *flags, size_t size, const arg_t options[size]);
 void print_help(size_t size, const arg_t options[size]);
