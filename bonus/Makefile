@@ -19,10 +19,14 @@ DY_NAME := libdy.so
 DY_SRC := $(shell find ./dy -name '*.s')
 DY_OBJ := $(DY_SRC:%.s=$(BUILD_DIR)/dy/%.o)
 
+32_NAME := bin32
+32_SRC := $(shell find ./32 -name '*.c')
+32_OBJ := $(32_SRC:%.c=$(BUILD_DIR)/32/%.o)
+
 .DEFAULT_GOAL := all
 .PHONY: all
 .NOTPARALLEL: all
-all: $(SO_NAME) $(DY_NAME)
+all: $(SO_NAME) $(DY_NAME) $(32_NAME)
 
 # ↓ libso.so
 $(BUILD_DIR)/so/%.o: %.c
@@ -39,6 +43,14 @@ $(BUILD_DIR)/dy/%.o: %.s
 
 $(DY_NAME): $(DY_OBJ)
 	$(LD) -shared -o $@ $^
+
+# ↓ bin32
+$(BUILD_DIR)/32/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) -m32 -c -o $@ $<
+
+$(32_NAME): $(32_OBJ)
+	$(CC) -m32 -o $@ $^
 
 .PHONY: clean
 clean:

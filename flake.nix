@@ -39,7 +39,6 @@
             valgrind
             bear
             gdb
-            nasm
           ]);
         };
 
@@ -47,6 +46,23 @@
         packages = {
           nm = deriv "my_nm" [ ];
           objdump = deriv "my_objdump" [ ];
+
+          bonus = pkgs.multiStdenv.mkDerivation {
+            name = "bonus";
+            src = ./bonus;
+            buildInputs = [ pkgs.gcc pkgs.nasm ];
+            hardeningDisable = [ "format" "fortify" ];
+            enableParallelBuilding = true;
+            buildPhase = ''
+              make
+            '';
+            installPhase = ''
+              mkdir -p $out/bin
+              cp libdy.so $out/bin
+              cp libso.so $out/bin
+              cp bin32    $out/bin
+            '';
+          };
         };
       });
 }
