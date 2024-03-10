@@ -6,5 +6,5 @@ got="$dir/got"
 exp="$dir/exp"
 
 nix run .#objdump -- "$@" > $got
-objdump "$@" > $exp
+objdump -fs "$@" > $exp
 vimdiff $got $exp

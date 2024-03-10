@@ -49,10 +49,12 @@ int my_objdump(UNUSED int argc, char **argv)
 
     if (!get_args(argv, &flags, LEN_OF(OB_ARGS), OB_ARGS))
         return RET_ERROR;
-    if (flags.flag == 0 || flags.nb_files == 0) {
+    if (flags.nb_files == 0) {
         print_help(LEN_OF(OB_ARGS), OB_ARGS);
         return RET_ERROR;
     }
+    if (flags.flag == 0)
+        flags.flag = FLG_HEADER | FLG_FULL_CONTENT;
     for (size_t i = 0; i < flags.nb_files; i++) {
         strcpy(bin.filename, flags.filenames[i]);
         bin.args = flags.flag;
