@@ -23,10 +23,14 @@ DY_OBJ := $(DY_SRC:%.s=$(BUILD_DIR)/dy/%.o)
 32_SRC := $(shell find ./32 -name '*.c')
 32_OBJ := $(32_SRC:%.c=$(BUILD_DIR)/32/%.o)
 
+ST_NAME := stripped
+ST_SRC := $(shell find ./st -name '*.c')
+ST_OBJ := $(ST_SRC:%.c=$(BUILD_DIR)/st/%.o)
+
 .DEFAULT_GOAL := all
 .PHONY: all
 .NOTPARALLEL: all
-all: $(SO_NAME) $(DY_NAME) $(32_NAME)
+all: $(SO_NAME) $(DY_NAME) $(32_NAME) $(ST_NAME)
 
 # ↓ libso.so
 $(BUILD_DIR)/so/%.o: %.c
@@ -51,6 +55,14 @@ $(BUILD_DIR)/32/%.o: %.c
 
 $(32_NAME): $(32_OBJ)
 	$(CC) -m32 -o $@ $^
+
+# ↓ stripped
+$(BUILD_DIR)/st/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) -s -c -o $@ $<
+
+$(ST_NAME): $(ST_OBJ)
+	$(CC) -s -o $@ $^
 
 .PHONY: clean
 clean:

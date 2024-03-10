@@ -61,6 +61,7 @@
               cp libdy.so $out/bin
               cp libso.so $out/bin
               cp bin32    $out/bin
+              cp stripped $out/bin
             '';
           };
         };
